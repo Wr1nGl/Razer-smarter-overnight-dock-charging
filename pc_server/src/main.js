@@ -5,6 +5,7 @@ const { bmRequestType, DIRECTION, TYPE, RECIPIENT } = require('bmrequesttype');
 var razerProducts = require('./products');
 const http = require('http');
 const fs = require('fs');
+const AutoLaunch = require('auto-launch');
 
 
 logger.transports.file.fileName = 'app.log';
@@ -147,11 +148,6 @@ function createSettingsWindow() {
     });
 }
 
-app.setLoginItemSettings({
-  openAtLogin: true,
-  path: app.getPath('exe')
-});
-
 app.on('window-all-closed', (e) => {
     e.preventDefault(); 
 });
@@ -159,6 +155,27 @@ app.on('window-all-closed', (e) => {
 app.whenReady().then(() => {
     logger.info('========== App Start ===========');
     logger.info(`checkInterval: ${batteryCheckTimeout}`);
+
+    /*
+    const rootFolder = path.resolve(process.execPath, '..', '..');
+    const updateExe = path.join(rootFolder, 'Update.exe');
+
+    app.setLoginItemSettings({
+        openAtLogin: true,
+        path: updateExe, 
+        args: [
+            '--processStart', `"${path.basename(process.execPath)}"`
+        ]
+    });
+    */
+
+    let autoLaunch = new AutoLaunch({
+    name: 'Razer smarter overnight dock charging',
+    path: app.getPath('exe'),
+    });
+    autoLaunch.isEnabled().then((isEnabled) => {
+        if (!isEnabled) autoLaunch.enable();
+    });
 
     usbDevices = getDeviceList() || [];
 
