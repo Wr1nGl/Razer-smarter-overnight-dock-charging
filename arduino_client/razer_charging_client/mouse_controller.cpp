@@ -28,59 +28,70 @@ void Mouse_controller::loop(){
     //check if the pc has been turned off
     if (this->mouse->getHttp_client()->getRetry_counter() >= MAX_RETRIES){
       this->calculate_cycles_needed();
+      this->current_cycle = 0;
       this->computer_state = 0;
       this->setMux(0);
       this->charger_state = 1;
       this->last_change_time = millis();
       Serial.println("Computer has been turned OFF, starting charging...");
+      Serial.print("Calculated cycles needed: ");
+      Serial.println(this->cycles_needed);
+
+      if (this->cycles_needed == 0){
+        Serial.println("Waiting for computer to boot...");
+      }
+      else{
+        Serial.print("Starting charging cycle ");
+        Serial.println(this->current_cycle + 1);
+      }
     }
     else{
       //use default timeout
       this->mouse->loop(TIMEOUT);
     }
   }
-  //start charging routine
+  //computer is off, start charging routine
   else{
-    //use detection timeout to minimize delay
+    //use detection timeout to minimize delay - check if computer is on
     this->mouse->loop(DELAY_TIMEOUT);
     //should be true if PC is on; cancel charging routine and connect to PC
     if (this->mouse->getHttp_client()->getRetry_counter() < MAX_RETRIES){
       this->computer_state = 1;
       this->charger_state = 1;
+      this->current_cycle = 0;
       this->setMux(0);
       Serial.println("Computer has been turned ON, switching source to PC...");
+      return;
     }
     //charging routine
     if (this->current_cycle < this->cycles_needed){
-      int timer_goal = this->charger_state ? this->mouse->getCharge_time()* 1000 * 60 : this->mouse->getCooldown_time()* 1000 * 60;
+      unsigned long timer_goal = this->charger_state ? this->mouse->getCharge_time()* 1000 * 60 : this->mouse->getCooldown_time()* 1000 * 60;
       if (millis() - this->last_change_time > timer_goal) {
-        //*
-        Serial.println("Charging routine: ");
-        Serial.print("Charging: ");
-        Serial.println(this->charger_state);
-
-        Serial.print("Current cycle: ");
-        Serial.println(this->current_cycle + 1);
-
-        Serial.print("Total cycles: ");
-        Serial.println(this->cycles_needed);
-        //*/
         this->last_change_time = millis();
         this->charger_state = !this->charger_state;
         this->setMux(!this->charger_state);
-        //i have made a full cycle
-        if (this->charger_state){
+        //if we detect 0 i have made a full cycle
+        if (!this->charger_state){
           this->current_cycle += 1;
+          if (this->current_cycle == this->cycles_needed){
+            Serial.println("Charging done, waiting for computer to boot...");
+          }
+          else{
+            Serial.print("Starting cooling cycle");
+            Serial.println(this->current_cycle);
+          }
+        }
+        else{
+          Serial.print("Starting charging cycle ");
+          Serial.println(this->current_cycle + 1);
+          
         }
       }
     }
+    //we are done charging and the computer is off
     else{
-      if (!this->computer_wait_lock){
-        this->computer_wait_lock = 1;
-        Serial.println("Charging done, waiting for computer to boot...");
-        this->charger_state = 0;
-        this->setMux(1);
-      }
+      this->charger_state = 0;
+      this->setMux(1);
     }
   }
     

@@ -16,5 +16,4 @@ private:
   bool computer_state = 1;
   bool charger_state = 1;
   unsigned long last_change_time = 0;
-  bool computer_wait_lock = 0;
 };

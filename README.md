@@ -16,13 +16,14 @@ I have made this for my razer wireless dock and Basilist v3 pro 35k. It should w
 - It is set as LOW signal = computer connected (power), HIGH signal - computer disconnected (no power)
 
 # Instructions
-- build it/install the server
-- add it to startup programs if not done automatically
+- build it/install the server - it should be added to startup programs automatically
 - set up server config (right click on the taskbar icon)
 - set up arduino client config
 - make firewall exception for the server if needed
 - test if the server can be reached (for example via browser)
 - enjoy
+
+The program assumes that the mouse is put on charger immediately or soon after the connection has been lost. The program works with energy estimates so the energy charged might not reach your selected target for the charging. 
 
 # Client config
 - MAX_RETRIES - how many times should the client try to get answer before assuming the computer is off, default 5 

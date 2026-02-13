@@ -27,8 +27,8 @@ void Mouse::parse_data(){
             Serial.printf("battery_level: %d%%\n", doc["battery_level"].as<int>());
             Serial.printf("battery_max_charge_level: %d%%\n", doc["battery_max_charge_level"].as<int>());
             Serial.printf("charge_gain: %.2f%%\n", doc["charge_gain"].as<float>());
-            Serial.printf("charge_time: %d%%\n", doc["charge_time"].as<int>());
-            Serial.printf("cooldown_time: %d%%\n", doc["cooldown_time"].as<int>());
+            Serial.printf("charge_time: %d min\n", doc["charge_time"].as<int>());
+            Serial.printf("cooldown_time: %d min\n", doc["cooldown_time"].as<int>());
             /*
             Serial.printf("Saved:");
             Serial.printf("battery_level: %d%%\n", this->battery_level);
